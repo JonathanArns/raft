@@ -4,12 +4,12 @@ import (
 	"log"
 	"math/rand"
 	"net"
+	"net/http"
 	"net/rpc"
 	"os"
 	"raft/raft"
 	"time"
 )
-
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -21,18 +21,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", os.Args[1])
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
-	go func() {
-		for {
-			conn, _ := l.Accept()
-			go rpc.ServeConn(conn)
-		}
-	}()
-
+	go http.Serve(l, nil)
 
 	// iterate Peers to connect from arguments
 	for i := 2; i < len(os.Args); i++ {
@@ -40,7 +34,7 @@ func main() {
 
 		// connect to peer
 		log.Printf("dialing %s", addr)
-		client, err := rpc.Dial("tcp", addr)
+		client, err := rpc.DialHTTP("tcp", addr)
 		if err != nil {
 			log.Printf("cannot dial %s", addr)
 			continue
@@ -61,7 +55,8 @@ func main() {
 	log.Printf("connected to %d Peers", len(node.Peers))
 	go func() {
 		time.Sleep(10 * time.Second)
-		node.Send(raft.Message{Payload:raft.AddLogCmd{Command:"SET KEK TOP"}})
+		node.Send(raft.Message{Payload: raft.AddLogCmd{Command: "SET KEK TOP"}})
 	}()
 	node.Run()
 }
+

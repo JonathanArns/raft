@@ -1,10 +1,11 @@
 package raft
 
 import (
-	"github.com/satori/go.uuid"
 	"log"
 	"net/rpc"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type State int
@@ -42,8 +43,8 @@ type Node struct {
 	HeartbeatChan chan int
 
 	// leader only
-	NextIndex  [] int
-	MatchIndex [] int
+	NextIndex  []int
+	MatchIndex []int
 
 	// candidate only
 	Votes int
@@ -295,7 +296,7 @@ func (node *Node) handShake(message Message) {
 	sender := message.Sender
 
 	log.Printf("handshaking with %s", req.Addr)
-	client, err := rpc.Dial("tcp", req.Addr)
+	client, err := rpc.DialHTTP("tcp", req.Addr)
 	if err != nil {
 		log.Printf("cannot dial")
 		sender <- Message{Payload: HandshakeResponse{}}

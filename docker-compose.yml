@@ -1,0 +1,18 @@
+services:
+  node1:
+    image: raft
+    container_name: node1
+    hostname: node1
+    command: ["node2:1234", "node3:1234"]
+
+  node2:
+    image: raft
+    container_name: node2
+    hostname: node2
+    command: ["node1:1234", "node3:1234"]
+      
+  node3:
+    image: raft
+    container_name: node3
+    hostname: node3
+    command: ["node1:1234", "node2:1234"]

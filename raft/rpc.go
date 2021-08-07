@@ -71,3 +71,4 @@ func (config *RpcConfig) Handshake(req *HandshakeCmd, reply *HandshakeResponse) 
 
 	return nil
 }
+
